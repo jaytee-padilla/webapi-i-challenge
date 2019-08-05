@@ -25,7 +25,7 @@ server.get('/api/users', (request, response) => {
 server.post('/api/users', (request, response) => {
 	const userInformation = request.body;
 
-	Users.add(userInformation)
+	Users.insert(userInformation)
 		.then(user => {
 			response.status(201).json(user)
 		})
