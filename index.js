@@ -21,6 +21,19 @@ server.get('/api/users', (request, response) => {
 		});
 });
 
+// GET specific user
+server.get('/api/users/:id', (request, response) => {
+	const userId = request.params.id
+
+	Users.findById(userId)
+		.then(users => {
+			response.status(200).json(users);
+		})
+		.catch(error => {
+			response.status(500).json({message: 'error getting the specific user'});
+		});
+});
+
 // POST users
 server.post('/api/users', (request, response) => {
 	const userInformation = request.body;
@@ -37,3 +50,14 @@ server.post('/api/users', (request, response) => {
 // PUT users
 
 // DELETE users
+server.delete('/api/users/:id', (request, response) => {
+	const userId = request.params.id;
+	
+	Users.remove(userId)
+		.then(user => {
+			response.status(200).json({message: 'user successfully deleted'});
+		})
+		.catch(error => {
+			response.status(500).json({message: 'error deleting user'});
+		});
+});;
