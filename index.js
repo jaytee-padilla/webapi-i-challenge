@@ -48,6 +48,22 @@ server.post('/api/users', (request, response) => {
 });
 
 // PUT users
+server.put('/api/users/:id', (request, response) => {
+	const userId = request.params.id;
+	const changes = request.body;
+
+	Users.update(userId, changes)
+		.then(updated => {
+			if(updated) {
+				response.status(200).json({message: 'user updated'});
+			} else {
+				response.status(400).json({message: 'user not found'});
+			}
+		})
+		.catch(error => {
+			response.status(500).json({message: 'error updating user'});
+		});
+});
 
 // DELETE users
 server.delete('/api/users/:id', (request, response) => {
