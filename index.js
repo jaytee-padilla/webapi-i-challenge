@@ -23,11 +23,15 @@ server.get('/api/users', (request, response) => {
 
 // GET specific user
 server.get('/api/users/:id', (request, response) => {
-	const userId = request.params.id
+	const userId = request.params.id;
 
 	Users.findById(userId)
-		.then(users => {
-			response.status(200).json(users);
+		.then(user => {
+			if(!user){
+				return response.status(404).json({message: "The user with the specified ID does not exist"});
+			}
+
+			response.status(200).json(user);
 		})
 		.catch(error => {
 			response.status(500).json({message: 'error getting the specific user'});
@@ -37,13 +41,19 @@ server.get('/api/users/:id', (request, response) => {
 // POST users
 server.post('/api/users', (request, response) => {
 	const userInformation = request.body;
+	userInformation.name = userInformation.name.trim();
+	userInformation.bio = userInformation.bio.trim();
+
+	if(!userInformation.name || !userInformation.bio) {
+		return response.status(400).json({ errorMessage: "Please provide name and bio for the user." });
+	}
 
 	Users.insert(userInformation)
 		.then(user => {
-			response.status(201).json(user)
+				return response.status(201).json(user);
 		})
 		.catch(error => {
-			response.status(500).json({message: 'error adding user to database'})
+			response.status(500).json({message: 'error adding user to database'});
 		});
 });
 
@@ -51,6 +61,15 @@ server.post('/api/users', (request, response) => {
 server.put('/api/users/:id', (request, response) => {
 	const userId = request.params.id;
 	const changes = request.body;
+
+	// if the new update doesn't provide new name or bio, return error
+	// else, trim() the update info to get rid of whitespace
+	if(!changes.name || !changes.bio) {
+		return response.status(400).json({ errorMessage: "Please provide name and bio for the user." });
+	} else {
+		changes.name = changes.name.trim();
+		changes.bio = changes.bio.trim();
+	}
 
 	Users.update(userId, changes)
 		.then(updated => {
@@ -71,6 +90,10 @@ server.delete('/api/users/:id', (request, response) => {
 	
 	Users.remove(userId)
 		.then(user => {
+			if(!user){
+				return response.status(404).json({message: "The user with the specified ID does not exist"});
+			}
+
 			response.status(200).json({message: 'user successfully deleted'});
 		})
 		.catch(error => {
